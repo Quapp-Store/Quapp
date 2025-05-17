@@ -1,0 +1,19 @@
+{
+  "name": "create-quapp",
+  "version": "1.0.0",
+  "description": "Quapp Development tool of the future",
+  "main": "index.js",
+  "type": "module",
+  "bin": {
+    "create-quapp": "./index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Quapp",
+  "license": "ISC",
+  "dependencies": {
+    "degit": "^2.8.4",
+    "prompts": "^2.4.2"
+  }
+}

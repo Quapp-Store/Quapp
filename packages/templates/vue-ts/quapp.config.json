@@ -1,0 +1,19 @@
+{
+  "server": {
+    "qr": true,
+    "network": "private",
+    "port": 5173,
+    "fallbackPort": false,
+    "https": false,
+    "openBrowser": true,
+    "autoRetry": true,
+    "strictPort": false
+  },
+  "build": {
+    "outDir": "dist",
+    "minify": true,
+    "sourcemap": false,
+    "reportCompressedSize": true,
+    "target": "esnext"
+  }
+}
