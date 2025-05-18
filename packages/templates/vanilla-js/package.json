@@ -4,14 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "quapp server",
     "build": "vite build",
+    "qbuild": "quapp build",
     "preview": "vite preview"
   },
   "devDependencies": {
+    "quapp": "^1.0.0",
     "vite": "^6.3.5"
-  },
-  "dependencies": {
-    "qrcode-terminal": "^0.12.0"
   }
 }

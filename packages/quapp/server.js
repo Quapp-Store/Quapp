@@ -109,6 +109,20 @@ function startVite(port, attempt = 0) {
     }
   });
 }
+// Check if Vite is installed
+function checkViteInstalled() {
+  try {
+    require.resolve("vite");
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+// Check if Vite is installed
+if (checkViteInstalled()) {
+  console.error("❌ Vite is not installed. Please install it globally or in your project.");
+  process.exit(1);
+}
 
 // Kickoff
 startVite(config.server.port);

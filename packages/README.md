@@ -1,4 +1,4 @@
-# 📦 Templates Directory
+# 📦 Package Directory
 
 This directory contains all official `quapp` packages used for scaffolding, serving, and managing frontend applications more efficiently.
 

@@ -1,7 +1,7 @@
 {
   "server": {
     "qr": true,
-    "network": "local",
+    "network": "private",
     "port": 5173,
     "fallbackPort": true,
     "https": false,
