@@ -157,7 +157,7 @@ try {
   console.log('\n' + colorize('  Creating a new Quapp project...\n', green));
 
   const projectDir = path.join(process.cwd(), projectName);
-  const templateRepo = `baaszunnaiyyer/quapp-template/${templateArg}`;
+  const templateRepo = `Quapp-Store/Quapp/packages/templates/${templateArg}`;
 
   try {
     const emitter = degit(templateRepo, { cache: false, force });
@@ -217,11 +217,12 @@ try {
   }
 
   console.log('\n');
+  console.log(yellow(`Now run the following commands to start your project:\n\n`));
   console.log(boldBlue(`  cd ${projectName}`));
   if (!doInstall) {
     console.log(boldBlue('  npm install'));
   }
-  console.log(boldBlue('  npm quapp serve or quapp serve\n'));
+  console.log(boldBlue('  npm run dev\n'));
 
   cleanupInput();
   setTimeout(() => process.exit(0), 100);
