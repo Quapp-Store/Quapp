@@ -62,40 +62,6 @@ const getIP = (networkType = "local") => {
   return "localhost";
 };
 
-// Check if Vite is installed
-
-
-function isViteInstalled() {
-  const result = spawnSync(
-    process.platform === "win32" ? "npx.cmd" : "npx",
-    ["vite", "--version"],
-    { stdio: "ignore" }
-  );
-  return result.status === 0;
-}
-
-
-
-// Install Vite
-const installVite = () => {
-  return new Promise((resolve, reject) => {
-    console.log("📦 Installing Vite...");
-    const install = spawn("npm", ["install", "vite", "-D"], {
-      stdio: "inherit",
-      shell: true,
-    });
-
-    install.on("exit", (code) => {
-      if (code === 0) {
-        console.log("✅ Vite installed.");
-        resolve();
-      } else {
-        reject(new Error("Failed to install Vite"));
-      }
-    });
-  });
-};
-
 // Start Vite server
 const startVite = (port, attempt = 0) => {
   const host = config.server.network === "private" ? getIP("private") : "localhost";
@@ -156,16 +122,6 @@ const startVite = (port, attempt = 0) => {
 // Main
 const main = async () => {
   await loadUserConfig();
-
-  if (!isViteInstalled()) {
-    try {
-      await installVite();
-    } catch (err) {
-      console.error("❌ Failed to install Vite automatically. Please install it manually.");
-      process.exit(1);
-    }
-  }
-
   startVite(config.server.port);
 };
 
