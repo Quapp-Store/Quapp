@@ -8,12 +8,5 @@
     "openBrowser": true,
     "autoRetry": false,
     "strictPort": false
-  },
-  "build": {
-    "outDir": "dist",
-    "minify": true,
-    "sourcemap": false,
-    "reportCompressedSize": true,
-    "target": "esnext"
   }
 }

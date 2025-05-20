@@ -1,11 +1,20 @@
+#!/usr/bin/env node
+
 import { spawn } from "child_process";
 import os from "os";
 import qrcode from "qrcode-terminal";
-import fs from "fs";
+import fs from "fs/promises";
+import { existsSync } from "fs";
 import path from "path";
 import open from "open";
+import { fileURLToPath } from "url";
+import { spawnSync } from "child_process";
 
-// Load config
+// __dirname replacement in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Default config
 let config = {
   server: {
     qr: true,
@@ -15,30 +24,35 @@ let config = {
     https: false,
     openBrowser: false,
     autoRetry: true,
-    strictPort: false
+    strictPort: false,
+  },
+};
+
+// Load user config
+const loadUserConfig = async () => {
+  try {
+    const configPath = path.resolve("quapp.config.json");
+    if (existsSync(configPath)) {
+      const data = await fs.readFile(configPath, "utf-8");
+      const userConfig = JSON.parse(data);
+      config = {
+        ...config,
+        ...userConfig,
+        server: { ...config.server, ...userConfig.server },
+      };
+    }
+  } catch (err) {
+    console.warn("⚠️ Failed to read quapp.config.json. Using default config.");
+    console.warn(err.message);
   }
 };
 
-try {
-  const configPath = path.resolve("quapp.config.json");
-  if (fs.existsSync(configPath)) {
-    const userConfig = JSON.parse(fs.readFileSync(configPath, "utf-8"));
-    config = {
-      ...config,
-      ...userConfig,
-      server: { ...config.server, ...userConfig.server }
-    };
-  }
-} catch (err) {
-  console.warn("⚠️ Failed to read quapp.config.json. Using default config.");
-}
-
-// Get local or LAN IP
-function getIP(networkType = "local") {
+// Get IP address
+const getIP = (networkType = "local") => {
   if (networkType === "private") {
     const interfaces = os.networkInterfaces();
     for (const key in interfaces) {
-      for (const iface of interfaces[key] || []) {
+      for (const iface of interfaces[key] ?? []) {
         if (!iface.internal && iface.family === "IPv4") {
           return iface.address;
         }
@@ -46,83 +60,113 @@ function getIP(networkType = "local") {
     }
   }
   return "localhost";
+};
+
+// Check if Vite is installed
+
+
+function isViteInstalled() {
+  const result = spawnSync(
+    process.platform === "win32" ? "npx.cmd" : "npx",
+    ["vite", "--version"],
+    { stdio: "ignore" }
+  );
+  return result.status === 0;
 }
 
-// Start Vite with fallback logic
-function startVite(port, attempt = 0) {
+
+
+// Install Vite
+const installVite = () => {
+  return new Promise((resolve, reject) => {
+    console.log("📦 Installing Vite...");
+    const install = spawn("npm", ["install", "vite", "-D"], {
+      stdio: "inherit",
+      shell: true,
+    });
+
+    install.on("exit", (code) => {
+      if (code === 0) {
+        console.log("✅ Vite installed.");
+        resolve();
+      } else {
+        reject(new Error("Failed to install Vite"));
+      }
+    });
+  });
+};
+
+// Start Vite server
+const startVite = (port, attempt = 0) => {
   const host = config.server.network === "private" ? getIP("private") : "localhost";
-  const url = `${config.server.https ? "https" : "http"}://${host}:${port}`;
+  const protocol = config.server.https ? "https" : "http";
+  const url = `${protocol}://${host}:${port}`;
 
   const viteArgs = [
     "--host",
     host,
     "--port",
     port,
-    // 🛠 Automatically enable strictPort if autoRetry is false
     ...(config.server.strictPort || !config.server.autoRetry ? ["--strictPort"] : []),
-    ...(config.server.https ? ["--https"] : [])
+    ...(config.server.https ? ["--https"] : []),
   ];
 
-  const viteProcess = spawn("vite", viteArgs, { shell: true });
+  const viteBinary = path.resolve(
+    "node_modules",
+    ".bin",
+    process.platform === "win32" ? "vite.cmd" : "vite"
+  );
 
-  let shown = false;
+  if (!existsSync(viteBinary)) {
+    console.error("❌ vite binary not found. Try running `npm install vite`.");
+    process.exit(1);
+  }
 
-  viteProcess.stdout.on("data", (data) => {
-    const output = data.toString();
+  const vite = spawn(viteBinary, viteArgs, { shell: true });
 
-    const portMatch = output.match(/http[s]?:\/\/.*:(\d+)/);
-    if (portMatch && !shown) {
-      const usedPort = parseInt(portMatch[1]);
-      const finalUrl = `${config.server.https ? "https" : "http"}://${host}:${usedPort}`;
+  vite.stdout.on("data", (data) => process.stdout.write(data));
+  vite.stderr.on("data", (data) => process.stderr.write(data));
 
-      console.log(`\n\n🌍 Access your app from LAN at: ${finalUrl}`);
-      if (config.server.qr) {
-        console.log(`\n📱 Scan the QR code below to open on any device:\n`);
-        qrcode.generate(finalUrl, { small: true });
-      }
-
-      if (config.server.openBrowser) {
-        open(finalUrl); // ✅ Uses external open package
-      }
-
-      shown = true;
+  setTimeout(() => {
+    console.log(`\n🌍 Access your app from LAN at: ${url}`);
+    if (config.server.qr) {
+      console.log(`\n📱 Scan the QR code below:\n`);
+      qrcode.generate(url, { small: true });
     }
+    if (config.server.openBrowser) {
+      open(url);
+    }
+  }, 1500);
 
-    process.stdout.write(data);
-  });
-
-  viteProcess.stderr.on("data", (data) => {
-    process.stderr.write(data);
-  });
-
-  viteProcess.on("exit", (code) => {
+  vite.on("exit", (code) => {
     if (
       code !== 0 &&
       config.server.fallbackPort &&
       config.server.autoRetry &&
       attempt < 10
     ) {
-      console.log(`⚠️ Port ${port} might be in use. Retrying on port ${port + 1}...`);
+      console.log(`⚠️ Port ${port} in use. Trying port ${port + 1}...`);
       startVite(port + 1, attempt + 1);
-    } else {
-      console.log(`❌ Vite exited with code ${code}`);
+    } else if (code !== 0) {
+      console.error(`❌ Vite exited with code ${code}`);
     }
   });
-}
-// Check if Vite is installed
-function checkViteInstalled() {
-  try {
-    require.resolve("vite");
-    return true;
-  } catch (err) {
-    return false;
-  }
-}
-// Check if Vite is installed
-if (checkViteInstalled()) {
-  console.error("❌ Vite is not installed. Please install it globally or in your project.");
-  process.exit(1);
-}
+};
 
-// Kickoff
-startVite(config.server.port);
+// Main
+const main = async () => {
+  await loadUserConfig();
+
+  if (!isViteInstalled()) {
+    try {
+      await installVite();
+    } catch (err) {
+      console.error("❌ Failed to install Vite automatically. Please install it manually.");
+      process.exit(1);
+    }
+  }
+
+  startVite(config.server.port);
+};
+
+main();
