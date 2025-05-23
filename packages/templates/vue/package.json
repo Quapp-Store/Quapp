@@ -13,8 +13,8 @@
     "vue": "^3.5.13"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.2.2",
-    "quapp": "^1.0.2",
-    "vite": "^6.3.1"
+    "@vitejs/plugin-vue": "^5.2.3",
+    "quapp": "^1.0.3",
+    "vite": "^6.3.5"
   }
 }

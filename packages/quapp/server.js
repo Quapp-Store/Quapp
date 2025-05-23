@@ -88,7 +88,10 @@ const startVite = (port, attempt = 0) => {
     process.exit(1);
   }
 
-  const vite = spawn(viteBinary, viteArgs, { shell: true });
+  const vite = spawn("npx", ["vite", ...viteArgs], {
+    stdio: "pipe",
+    shell: true,
+  });
 
   vite.stdout.on("data", (data) => process.stdout.write(data));
   vite.stderr.on("data", (data) => process.stderr.write(data));

@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "quapp": "^1.0.2",
+    "quapp": "^1.0.3",
     "typescript": "~5.8.3",
     "vite": "^6.3.5"
   }

@@ -1,20 +1,30 @@
 {
   "name": "quapp",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "type": "module",
-  "author": "",
+  "author": "Quapp",
   "bin": {
     "quapp": "./bin/cli.js"
   },
-  "license": "ISC",
-  "description": "",
+  "license": "MIT",
+  "description": "A lightweight CLI tool that starts a Vite/Angular development server with LAN-accessible QR code and prepares your app for production with a simple build command.",
   "dependencies": {
     "archiver": "^7.0.1",
     "open": "^10.1.2",
     "qrcode-terminal": "^0.12.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Quapp-Store/Quapp/tree/main/packages/quapp"
+  },
+  "files": [
+  "README.md",
+  "server.js",
+  "bin/cli.js",
+  "build.js"
+]
 }
