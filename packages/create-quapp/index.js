@@ -165,6 +165,12 @@ try {
     const emitter = degit(templateRepo, { cache: false, force });
     await emitter.clone(projectDir);
   } catch (err) {
+    if(err.message.includes('Could not find commit hash for HEAD')) {
+      console.error(red(`Git not Avilable! Please install Git to use this command.`));
+      // giving link to the download Git
+      console.error(yellow(`You can download Git from: https://git-scm.com/download`));
+      process.exit(1);
+    }
     console.error(red('  Error creating project:'), err.message);
     process.exit(1);
   }
