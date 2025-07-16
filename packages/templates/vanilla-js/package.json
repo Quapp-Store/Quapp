@@ -11,6 +11,6 @@
   },
   "devDependencies": {
     "quapp": "^1.0.3",
-    "vite": "^6.3.5"
+    "vite": "^7.0.4"
   }
 }

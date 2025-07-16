@@ -121,6 +121,7 @@ try {
     react: ['react', 'react-ts', 'react+swc', 'react-ts+swc'],
     vue: ['vue', 'vue-ts'],
     vanilla: ['vanilla-js', 'vanilla-ts'],
+    solid: ['solid-js', 'solid-ts'],
   };
 
   // Ask for framework + template
@@ -133,6 +134,7 @@ try {
         { title: 'React', value: 'react' },
         { title: 'Vue', value: 'vue' },
         { title: 'Vanilla', value: 'vanilla' },
+        { title: 'Solid', value: 'solid' },
       ],
     });
 
@@ -165,7 +167,7 @@ try {
     const emitter = degit(templateRepo, { cache: false, force });
     await emitter.clone(projectDir);
   } catch (err) {
-    if(err.message.includes('Could not find commit hash for HEAD')) {
+    if(err.message.includes('could not find commit hash for HEAD')) {
       console.error(red(`Git not Avilable! Please install Git to use this command.`));
       // giving link to the download Git
       console.error(yellow(`You can download Git from: https://git-scm.com/download`));
